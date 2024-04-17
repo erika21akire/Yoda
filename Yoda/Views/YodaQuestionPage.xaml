@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="OpenAiModel.Views.YodaQuestionPage"
+             xmlns:selector="clr-namespace:OpenAiModel.Views.Templates"
+             xmlns:models="clr-namespace:OpenAiModel.Models"
+             xmlns:viewmodels="clr-namespace:OpenAiModel.ViewModels"
+             Title="Ask that which you seek young Padawan...">
+    <ContentPage.Resources>
+        <Style TargetType="Grid">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="LightSkyBlue" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+        <ResourceDictionary>
+            <DataTemplate x:Key="inboundChatTemplate"  x:DataType="models:ChatMessage">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Frame Margin="10" BackgroundColor="Beige" Grid.Row="1"  Padding="10">
+                        <Label TextColor="Black" Text="{Binding MessageBody}" />
+                    </Frame>
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="outboundChatTemplate" x:DataType="models:ChatMessage">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Frame Margin="10" BackgroundColor="MistyRose" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Padding="10"  HorizontalOptions="EndAndExpand">
+                        <Label TextColor="Black" Text="{Binding MessageBody}" HorizontalTextAlignment="End" />
+                    </Frame>
+                </Grid>
+            </DataTemplate>
+            <selector:ChatMessageTemplateSelector x:Key="chatTemplateSelector"
+                            InboundTemplate="{StaticResource inboundChatTemplate}"
+                            OutboundTemplate="{StaticResource outboundChatTemplate}" />
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <CollectionView ItemsUpdatingScrollMode="KeepLastItemInView"  ItemSizingStrategy="MeasureAllItems"   ItemsSource="{Binding ChatHistory }" x:DataType="viewmodels:QuestionViewModel" 
+                ItemTemplate="{StaticResource chatTemplateSelector}"
+                         SelectionMode="Single" x:Name="ChatHistoryCollectionView"
+                         SelectionChangedCommand="{Binding ChatSelectedCommand}" 
+                         SelectionChangedCommandParameter="{Binding Path=SelectedItem, Source={x:Reference ChatHistoryCollectionView}}"
+                        
+                        />
+
+        <Label 
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Entry x:Name="QuestionEntry" Placeholder="Ask a question" Text="{Binding CurrentQuestion}" Grid.ColumnSpan="3"/>
+
+            <Image Source="sendicon.png" WidthRequest="60" HorizontalOptions="End" Grid.Column="3" Margin="10">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer CommandParameter="{x:Reference Name=QuestionEntry}" Command="{Binding AskQuestionCommand}"/>
+                </Image.GestureRecognizers>
+            </Image>
+        </Grid>
+    </Grid>
+</ContentPage>
